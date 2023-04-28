@@ -1,14 +1,16 @@
-import SinglePost from '@/components/Posts/SinglePost';
-import { getAllPosts } from '@/lib/notionAPI';
+import SinglePost from '@/components/Post/SinglePost';
+import { getPostForTopPage } from '@/lib/notionAPI';
+import { GetStaticProps } from 'next';
 import { Inter } from 'next/font/google';
 import Head from 'next/head';
+import Link from 'next/link';
 
-export const getStaticProps = async () => {
-  const allPosts = await getAllPosts();
+export const getStaticProps: GetStaticProps = async () => {
+  const fourPosts = await getPostForTopPage(4);
 
   return {
     props: {
-      allPosts,
+      fourPosts,
     },
     revalidate: 60 * 60 * 6,
   };
@@ -16,8 +18,7 @@ export const getStaticProps = async () => {
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function Home({ allPosts }) {
-  console.log(allPosts);
+export default function Home({ fourPosts }) {
   return (
     <div className="container h-full w-full mx-auto">
       <Head>
@@ -29,11 +30,14 @@ export default function Home({ allPosts }) {
 
       <main className="container w-full mt-16">
         <h1 className="text-5xl font-medium text-center mb-16">Notion Blog🚀</h1>
-        {allPosts.map((post, index) => (
-          <div className="mx-4" key={index}>
-            <SinglePost title={post.title} description={post.description} date={post.date} tags={post.tags} slug={post.slug} />
+        {fourPosts.map((post, index) => (
+          <div className="mx-4" key={post.id}>
+            <SinglePost title={post.title} description={post.description} date={post.date} tags={post.tags} slug={post.slug} isPaginationPage={false} />
           </div>
         ))}
+        <Link href="/posts/page/1" className="mb-6 lg:w-1/2 mx-auto px-5 block text-right">
+          ...もっと見る
+        </Link>
       </main>
     </div>
   );
