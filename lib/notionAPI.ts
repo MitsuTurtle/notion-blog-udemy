@@ -12,6 +12,18 @@ export const getAllPosts = async () => {
   const posts = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID,
     page_size: 100,
+    filter: {
+      property: 'Published',
+      checkbox: {
+        equals: true,
+      },
+    },
+    sorts: [
+      {
+        property: 'Date',
+        direction: 'descending',
+      },
+    ],
   });
 
   const allPosts = posts.results;
@@ -89,4 +101,31 @@ export const getNumbersOfPages = async () => {
   const allPosts = await getAllPosts();
 
   return Math.floor(allPosts.length / NUMBER_OF_POSTS_PER_PAGE) + (allPosts.length % NUMBER_OF_POSTS_PER_PAGE > 0 ? 1 : 0);
+};
+
+export const getPostByTagAndPage = async (tagName: string, page: number) => {
+  const allPosts = await getAllPosts();
+  const posts = allPosts.filter((post) => post.tags.find((tag: string) => tag === tagName));
+
+  const startIndex = (page - 1) * NUMBER_OF_POSTS_PER_PAGE;
+  const endIndex = startIndex + NUMBER_OF_POSTS_PER_PAGE;
+
+  return posts.slice(startIndex, endIndex);
+};
+
+export const getNumberOfPagesByTag = async (tagName: string) => {
+  const allPosts = await getAllPosts();
+  const posts = allPosts.filter((post) => post.tags.find((tag: string) => tag === tagName));
+
+  return Math.floor(posts.length / NUMBER_OF_POSTS_PER_PAGE) + (allPosts.length % NUMBER_OF_POSTS_PER_PAGE > 0 ? 1 : 0);
+};
+
+export const getAllTags = async () => {
+  const allPosts = await getAllPosts();
+
+  const allTagsDuplicationLists = allPosts.flatMap((post) => post.tags);
+  const set = new Set(allTagsDuplicationLists);
+  const allTagsList = Array.from(set);
+
+  return allTagsList;
 };

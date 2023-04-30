@@ -1,5 +1,6 @@
 import SinglePost from '@/components/Post/SinglePost';
-import { getPostForTopPage } from '@/lib/notionAPI';
+import Tag from '@/components/Tag/Tag';
+import { getAllTags, getPostForTopPage } from '@/lib/notionAPI';
 import { GetStaticProps } from 'next';
 import { Inter } from 'next/font/google';
 import Head from 'next/head';
@@ -7,10 +8,12 @@ import Link from 'next/link';
 
 export const getStaticProps: GetStaticProps = async () => {
   const fourPosts = await getPostForTopPage(4);
+  const allTags = await getAllTags();
 
   return {
     props: {
       fourPosts,
+      allTags,
     },
     revalidate: 60 * 60 * 6,
   };
@@ -18,7 +21,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function Home({ fourPosts }) {
+export default function Home({ fourPosts, allTags }) {
   return (
     <div className="container h-full w-full mx-auto">
       <Head>
@@ -38,6 +41,7 @@ export default function Home({ fourPosts }) {
         <Link href="/posts/page/1" className="mb-6 lg:w-1/2 mx-auto px-5 block text-right">
           ...もっと見る
         </Link>
+        <Tag tags={allTags} />
       </main>
     </div>
   );
